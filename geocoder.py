@@ -4,6 +4,12 @@ from unidecode import unidecode
 from arcgis.gis import GIS
 from arcgis.geocoding import geocode
 
+# This file will geocode a string and return a formatted address for 3 different APIs
+# 1. Google Maps API (paid, but most reliable)
+## Setup info here: https://developers.google.com/maps/documentation/geocoding/cloud-setup
+# 2. ArcGis API (free, but limited to 1000 requests per day)
+# 3. Nominatim API (free, but results are not always reliable)
+
 EXCEPTION_LIST = { # List for places that free geocoders cant find. Google might find them but work already done
     "Sezanne, Tokyo":"1 Chome-11-1 Marunouchi, Chiyoda City, Tokyo 100-6277, Japan", 
     "Orfali Bros Bistro, Dubai":"D92 - Jumeirah - Jumeirah 1 - Dubai - United Arab Emirates", 
@@ -57,11 +63,12 @@ class Geocode:
                 return None
             
         # If the address is not in the exception list, proceed with geocoding
-        self.get_address_google()
-
-        '''self.geocode_address_nominatim(self.locator)
+        #self.get_address_google()
+        # Use free APIs by default for dev. Use Google for finaly copy only
+        # All you have to do to switch is comment below and uncomment above
+        self.geocode_address_nominatim(self.locator)
         if not self.address:
-            self.geocode_address_arcgis()'''
+            self.geocode_address_arcgis()
 
     def geocode_address_arcgis(self):
         # print("Using ArcGis")
