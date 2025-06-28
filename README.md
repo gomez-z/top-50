@@ -6,70 +6,59 @@ This repository contains the codebase and documentation for all core features.
 
 ## Features
 
-### 1. Restaurant Listing
-- Displays a paginated list of the top 100 restaurants.
-- Search and filter by cuisine, location, or rating.
-- Sort by name, rating, or popularity.
+### 1. Data Source
+- Data comes from txt files in InputData/
+- Data is organized by year and pulled directly from webiste
+- Because it was pulled directly, information is limited to name and city
+- This is why some APIs struggle to return addresses
 
-### 2. Restaurant Details
-- View detailed information for each restaurant:
-    - Name, address, contact info
-    - Cuisine type
-    - Opening hours
-    - Menu highlights
-    - Photos and map location
+### 2. Output
+- The program outputs 5 different csv files:
+    - top100_all.csv = All restaurants
+    - top100_botb.csv = Best Of The Best; #1 Restaurants
+    - top100_current.csv = Restaurants of the current year
+    - top100_modern.csv = Restaurants between 2021 and current year
+    - top100_old.csv = Restaurants older than 2021
+- Note: There is no guarantee that restaurant in list is still open or still good! Do your own research  before travelling.
 
-### 3. User Reviews & Ratings
-- Authenticated users can submit reviews and ratings.
-- Reviews include text, star rating, and optional photos.
-- Aggregate ratings displayed for each restaurant.
+### 3. CSV Structure
+- There are three columns in each csv
+    - Name - Restaurant Name
+    - Detail - Honors; *Year - Rank*
+    - Address - Geocoded address ready to map
 
-### 4. Favorites & Collections
-- Users can add restaurants to their favorites.
-- Create and manage custom collections (e.g., "Date Night", "Family Friendly").
+### 4. Program Structure
+- The program will parse every txt file in InputData and add data for every entry into a hash table where the restaurant name is the key
+   - If the key doesnt exist, it will geocode using the name and city and add all the data
+   - If the key exists but is for a differnt year, only the *Detail* column will be updated
+   - If there is no new data, the entry is skipped altogether
+- Once the parsing is complete, it gets fed to the csv function that creates the files
+- Pickle - The hash table is pickled and saved to a pkl file to allow subsequent executions to only perform updates on new data
+   - After the pkl file has been created, it is loaded in upon startup so the data will always persist.
 
-### 5. Admin Panel
-- Admins can add, edit, or remove restaurants.
-- Moderate user reviews and manage user accounts.
-
-### 6. Authentication & Authorization
-- Secure user registration and login.
-- Role-based access for users and admins.
-
-### 7. Responsive Design
-- Fully responsive UI for desktop and mobile devices.
+### 4. Mapping Output
+Data can be mapped using google's My Maps (This is different from Google Maps). Just create a new map and import desired CSV file into your layer(s)
+- Pin colors can be changed per layer or per entry but by default My Maps blasts any formatting.
+- Do not go down the rabbit hole of .kml or .kmz files.  
+Ask me how I know...
 
 ## Getting Started
 
 1. **Clone the repository:**
      ```bash
-     git clone https://github.com/yourusername/top-100-restaurants.git
-     cd top-100-restaurants
+     git clone https://github.com/gomez-z/top-50.git
+     cd top-50-restaurants
      ```
 
 2. **Install dependencies:**
      ```bash
-     npm install
+     pip3 install csv requests googlemaps unidecode arcgis
      ```
 
-3. **Configure environment variables:**
-     - Copy `.env.example` to `.env` and update with your settings.
-
-4. **Run the development server:**
+3. **Execution:**
      ```bash
-     npm start
+     python3 main.py
      ```
-
-## Project Structure
-
-```
-/src
-    /components      # Reusable UI components
-    /pages           # Main application pages
-    /api             # API routes and handlers
-    /utils           # Utility functions
-    /styles          # CSS/SCSS files
-```
 
 ## Contributing
 
