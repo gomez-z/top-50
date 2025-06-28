@@ -1,8 +1,10 @@
-# Top 100 Restaurants
+# Top 50 Restaurants
 
 A curated application for discovering, managing, and reviewing the top 100 restaurants for every year since incpetion.  
-Data source comes from here: https://www.theworlds50best.com/list/1-50. 
-This repository contains the codebase and documentation for all core features.
+Data source comes from here: https://www.theworlds50best.com/list/1-50.  
+This repository parses data for every year and creates csv files that are designed to be imported into Google My Maps to obtain all restaurants in one convenient place
+
+![Alt text](Top50.png?raw=true "NYC")
 
 ## Features
 

@@ -2,6 +2,9 @@ import re
 import sys
 import unicodedata
 
+# This module handles parsing the text files and formatting the hash table data to get 
+# the desired output to convert to CSV
+
 class TextFileParser:
     def __init__(self, filepath):
         self.filepath = filepath
