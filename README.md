@@ -52,12 +52,17 @@ Ask me how I know...
      cd top-50-restaurants
      ```
 
-2. **Install dependencies:**
+2. **Install dependencies (Python 3.9+):**
      ```bash
-     pip3 install csv requests googlemaps unidecode arcgis
+     pip3 install csv requests pyyaml googlemaps unidecode arcgis
      ```
 
-3. **Execution:**
+3. **Setup configuration:**
+     ```
+     Edit configuration.yaml to add your google api key if desired
+     ```
+
+4. **Execution:**
      ```bash
      python3 main.py
      ```

@@ -4,6 +4,7 @@ import pickle
 import csv
 import geocoder
 import yaml
+import sys
 
 def main():
     global API_KEY
@@ -13,6 +14,7 @@ def main():
     saved_table = config.get('pickle_file')
     current_year = config.get('current_year')
     api_key = config.get('google_api_key')
+    csv_flag = config.get('generate_multiple_csv')
     if api_key:
         print("Google API key detected.")
         print("WARNING: Using Google API may incur costs!")
@@ -36,7 +38,7 @@ def main():
         append_to_hash_table(fileData, hash_table, api_key)
 
     # print_hash_table(hash_table)
-    export_hash_table_to_csv(hash_table, current_year, 'top100')
+    export_hash_table_to_csv(hash_table, current_year, csv_flag, 'top100')
     # Save changes to the hash table
     save_hash_table(hash_table, saved_table)
 
@@ -87,44 +89,49 @@ def print_hash_table(hash_table):
         else:
             print(f"{key}: {value}")
 
-def export_hash_table_to_csv(hash_table, year, filename='top100'):
+def export_hash_table_to_csv(hash_table, year, csv_flag, filename='top100'):
     """
     Export the hash table to a CSV file.
     Each key-value pair is written as a row.
     """
-    with open(filename + '_all.csv', 'w', newline='', encoding='utf-8') as csvall, open(
-        filename + '_botb.csv', 'w', newline='', encoding='utf-8') as csvbotb, open(
-            filename + '_current.csv', 'w', newline='', encoding='utf-8') as csvcurrent, open(
-                filename + '_modern.csv', 'w', newline='', encoding='utf-8') as csvmodern, open(
-                    filename + '_old.csv', 'w', newline='', encoding='utf-8') as csvold:
+    if csv_flag:
+        with open(filename + '_botb.csv', 'w', newline='', encoding='utf-8') as csvbotb, open(
+                  filename + '_current.csv', 'w', newline='', encoding='utf-8') as csvcurrent, open(
+                  filename + '_modern.csv', 'w', newline='', encoding='utf-8') as csvmodern, open(
+                  filename + '_old.csv', 'w', newline='', encoding='utf-8') as csvold:
 
-        # Create CSV writers for each file
-        writer_all = csv.writer(csvall)
-        writer_botb = csv.writer(csvbotb)
-        writer_current = csv.writer(csvcurrent)
-        writer_modern = csv.writer(csvmodern)
-        writer_old = csv.writer(csvold)
+            # Create CSV writers for each file
+            writer_botb = csv.writer(csvbotb)
+            writer_current = csv.writer(csvcurrent)
+            writer_modern = csv.writer(csvmodern)
+            writer_old = csv.writer(csvold)
 
-        # Write headers
-        writer_all.writerow(['Name', 'Detail', 'Address'])
-        writer_botb.writerow(['Name', 'Detail', 'Address'])
-        writer_current.writerow(['Name', 'Detail', 'Address'])
-        writer_modern.writerow(['Name', 'Detail', 'Address'])
-        writer_old.writerow(['Name', 'Detail', 'Address'])
+            # Write headers
+            writer_botb.writerow(['Name', 'Detail', 'Address'])
+            writer_current.writerow(['Name', 'Detail', 'Address'])
+            writer_modern.writerow(['Name', 'Detail', 'Address'])
+            writer_old.writerow(['Name', 'Detail', 'Address'])
 
-        for key, value in hash_table.items():
-            newest = value[2].split(' ')[0]  # Get latest entry
-            row = [value[0], value[2], value[3]]
-            writer_all.writerow(row)
+            for key, value in hash_table.items():
+                newest = value[2].split(' ')[0]  # Get latest entry
+                row = [value[0], value[2], value[3]]
 
-            if "BOTB" in value[2]:
-                writer_botb.writerow(row)
-            elif str(newest) == str(year):
-                writer_current.writerow(row)
-            elif int(newest) > 2020:
-                writer_modern.writerow(row)
-            else:
-                writer_old.writerow(row)
+                if "BOTB" in value[2]:
+                    writer_botb.writerow(row)
+                elif str(newest) == str(year):
+                    writer_current.writerow(row)
+                elif int(newest) > 2020:
+                    writer_modern.writerow(row)
+                else:
+                    writer_old.writerow(row)
+
+    else:
+        with open(filename + '_all.csv', 'w', newline='', encoding='utf-8') as csvall:
+            writer_all = csv.writer(csvall)
+            writer_all.writerow(['Name', 'Detail', 'Address'])
+            for key, value in hash_table.items():
+                row = [value[0], value[2], value[3]]
+                writer_all.writerow(row)
 
 if __name__ == "__main__":
     main()
