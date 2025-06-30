@@ -1,35 +1,46 @@
 import TextFileParser  # Assuming TextFileParser is a module that provides the parse_file function
 import os
-import sys
 import pickle
 import csv
 import geocoder
-import time
-
-SAVED_TABLE = 'bkp_top100.pkl'
-CURRENT_YEAR = 2025
-# To add a new year, update string above and add a new file with the year in InputData folder
+import yaml
 
 def main():
+    global API_KEY
+    # Load configuration from YAML file
+    with open('configuration.yaml', 'r') as config_file:
+        config = yaml.safe_load(config_file)
+    saved_table = config.get('pickle_file')
+    current_year = config.get('current_year')
+    api_key = config.get('google_api_key')
+    if api_key:
+        print("Google API key detected.")
+        print("WARNING: Using Google API may incur costs!")
+
+    # Load list of files in InputData directory
     txt_files = [f for f in os.listdir('InputData') if 'Top' in f and f.endswith('.txt')]
-    if os.path.exists(SAVED_TABLE):
-        with open(SAVED_TABLE, 'rb') as f:
+
+    # Check if pickle file exists, if so load it instead of starting fresh
+    if os.path.exists(saved_table):
+        with open(saved_table, 'rb') as f:
             hash_table = pickle.load(f)
-        print(f"Loaded hash table from {SAVED_TABLE}")
+        print(f"Loaded hash table from {saved_table}")
     else:
+        # Pickle file doesn't exist, start fresh
         hash_table = {}
+
     # Go through every file and load all the data into a hash table
     for file in txt_files:
         print(f"Processing file: {file}")
         fileData = TextFileParser.parse_and_format(os.path.join('InputData', file))
-        append_to_hash_table(fileData, hash_table)
+        append_to_hash_table(fileData, hash_table, api_key)
 
     # print_hash_table(hash_table)
-    export_hash_table_to_csv(hash_table, 'top100')
+    export_hash_table_to_csv(hash_table, current_year, 'top100')
     # Save changes to the hash table
-    save_hash_table(hash_table, SAVED_TABLE)
+    save_hash_table(hash_table, saved_table)
 
-def append_to_hash_table(fileData, table):
+def append_to_hash_table(fileData, table, api_key):
     for entry in fileData:
             key = entry[0]  # or another unique identifier
             # Need to account for 3 use cases: 1 = Not exist, add; 2 = Exist, but new year; 3 = Exist, duplicate
@@ -48,7 +59,7 @@ def append_to_hash_table(fileData, table):
             else: # 1. Doesnt exist, geocode and add
                 print(f"Adding new entry: {key}")
                 address_str = f"{entry[0]}, {entry[1]}"
-                formatted_address = geocoder.get_address(address_str)
+                formatted_address = geocoder.get_address(address_str, api_key)
                 
                 # We have added the address, now we append to entry and add to table
                 if formatted_address:
@@ -76,7 +87,7 @@ def print_hash_table(hash_table):
         else:
             print(f"{key}: {value}")
 
-def export_hash_table_to_csv(hash_table, filename='top100'):
+def export_hash_table_to_csv(hash_table, year, filename='top100'):
     """
     Export the hash table to a CSV file.
     Each key-value pair is written as a row.
@@ -108,7 +119,7 @@ def export_hash_table_to_csv(hash_table, filename='top100'):
 
             if "BOTB" in value[2]:
                 writer_botb.writerow(row)
-            elif str(newest) == str(CURRENT_YEAR):
+            elif str(newest) == str(year):
                 writer_current.writerow(row)
             elif int(newest) > 2020:
                 writer_modern.writerow(row)

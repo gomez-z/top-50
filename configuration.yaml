@@ -1,0 +1,5 @@
+# Enter google api key below to activate the use of Google Maps API for geocoding. Otherwise YMMV with free services.
+google_api_key:
+current_year: 2025
+generate_multiple_csv: True
+pickle_file: bkp_top100.pkl

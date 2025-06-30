@@ -41,13 +41,11 @@ class Geocode:
     def __init__(self, locator=None):
         self.locator = locator
         self.address = None
+        self.google_api_key = None
         self.portal = GIS()
 
     def get_address_google(self):
-        print("Using Google API. Careful, it costs money!")
-
-        gmaps = googlemaps.Client(key='XXX')
-        
+        gmaps = googlemaps.Client(key=self.google_api_key)        
         geocode_result = gmaps.geocode("restaurant "+self.locator)
         if not geocode_result:
             return None
@@ -63,12 +61,13 @@ class Geocode:
                 return None
             
         # If the address is not in the exception list, proceed with geocoding
-        #self.get_address_google()
-        # Use free APIs by default for dev. Use Google for finaly copy only
-        # All you have to do to switch is comment below and uncomment above
-        self.geocode_address_nominatim(self.locator)
-        if not self.address:
-            self.geocode_address_arcgis()
+        if self.google_api_key:
+            self.get_address_google()
+        else:
+        # Use free APIs by default for dev. Use Google for finaly copy to save on cost
+            self.geocode_address_nominatim(self.locator)
+            if not self.address:
+                self.geocode_address_arcgis()
 
     def geocode_address_arcgis(self):
         # print("Using ArcGis")
@@ -107,8 +106,9 @@ class Geocode:
             print(f"Geocoding error: {e}")
         
 
-def get_address(locator):
+def get_address(locator, api_key=None):
     geoObject = Geocode(locator=locator)
+    geoObject.google_api_key = api_key
     geoObject.geocoder_order()
     return geoObject.address
 
@@ -116,5 +116,5 @@ if __name__ == "__main__":
     # Example usage
     locators = ["Disfrutar, Barcelona", "Mountain, London", "Table by Bruno Verjus, Paris", "Gaggan, Bangkok", "Central, Lima"]
     for i in locators:
-        address = get_address(i)
+        address = get_address(i, None)
         print(f"Geocoded address: {address}")
